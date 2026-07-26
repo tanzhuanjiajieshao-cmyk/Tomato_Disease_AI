@@ -1,11 +1,3 @@
-interpreter = Interpreter(
-    model_path="model/tomato_model.tflite"
-)
-
-interpreter.allocate_tensors()
-
-input_details = interpreter.get_input_details()
-output_details = interpreter.get_output_details()
 import streamlit as st
 import numpy as np
 from PIL import Image
