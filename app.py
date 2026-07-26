@@ -6,7 +6,7 @@ interpreter.allocate_tensors()
 
 input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
-[4:55 PM, 7/26/2026] xuan: import streamlit as st
+import streamlit as st
 import numpy as np
 from PIL import Image
 from ai_edge_litert.interpreter import Interpreter
