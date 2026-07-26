@@ -2,11 +2,36 @@ import streamlit as st
 import numpy as np
 from PIL import Image
 from ai_edge_litert.interpreter import Interpreter
+import os
+
+
+# Page settings
+st.set_page_config(
+    page_title="Tomato Disease AI",
+    page_icon="🌱",
+    layout="centered"
+)
+
+
+# Title
+st.title("🌱 AI Tomato Disease Detector")
+
+st.write(
+    "Upload a tomato leaf image and AI will detect possible diseases."
+)
+
+
+# Check model
+model_path = "model/tomato_model.tflite"
+
+if not os.path.exists(model_path):
+    st.error("❌ Model file not found!")
+    st.stop()
 
 
 # Load TFLite model
 interpreter = Interpreter(
-    model_path="model/tomato_model.tflite"
+    model_path=model_path
 )
 
 interpreter.allocate_tensors()
@@ -15,6 +40,7 @@ input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
 
 
+# Classes
 class_names = [
     "Tomato_Early_blight",
     "Tomato_healthy",
@@ -23,37 +49,56 @@ class_names = [
 ]
 
 
+# Solutions
 solutions = {
+
     "Tomato_Early_blight":
-    "🍂 Remove infected leaves.\n\nImprove air circulation.\n\nApply suitable treatment.",
+    """
+🍂 Early Blight detected
+
+Solutions:
+- Remove infected leaves
+- Improve air circulation
+- Avoid water staying on leaves
+- Apply suitable treatment
+""",
 
     "Tomato_healthy":
-    "🌱 Plant looks healthy!\n\nContinue good care.",
+    """
+🌱 Plant looks healthy!
+
+Continue:
+- Good watering
+- Enough sunlight
+- Regular monitoring
+""",
 
     "Tomato_Late_blight":
-    "⚠️ Remove infected plants.\n\nAvoid overwatering.\n\nApply treatment.",
+    """
+⚠️ Late Blight detected
+
+Solutions:
+- Remove infected plants
+- Avoid overwatering
+- Improve ventilation
+- Apply suitable treatment
+""",
 
     "Tomato_Leaf_Mold":
-    "🌫️ Reduce humidity.\n\nImprove ventilation.\n\nRemove infected leaves."
+    """
+🌫️ Leaf Mold detected
+
+Solutions:
+- Reduce humidity
+- Improve airflow
+- Remove infected leaves
+"""
 }
 
 
-# Page design
-st.set_page_config(
-    page_title="Tomato Disease AI",
-    page_icon="🌱"
-)
-
-
-st.title("🌱 AI Tomato Disease Detector")
-
-st.write(
-    "Upload a tomato leaf image and AI will detect possible diseases."
-)
-
-
+# Upload image
 uploaded_file = st.file_uploader(
-    "📷 Upload leaf image",
+    "📷 Upload tomato leaf image",
     type=["jpg", "jpeg", "png"]
 )
 
@@ -64,12 +109,18 @@ if uploaded_file:
 
     st.image(
         image,
-        caption="Uploaded Image",
+        caption="Uploaded Leaf",
         width=350
     )
 
 
-    img = image.resize((224,224))
+    # Preprocess image
+    img = image.convert("RGB")
+
+    img = img.resize(
+        (224, 224)
+    )
+
 
     img_array = np.array(img)
 
@@ -78,7 +129,9 @@ if uploaded_file:
         axis=0
     )
 
-    img_array = img_array.astype(np.float32) / 255.0
+    img_array = img_array.astype(
+        np.float32
+    ) / 255.0
 
 
     # Prediction
@@ -95,22 +148,34 @@ if uploaded_file:
     )
 
 
-    result = np.argmax(prediction)
+    result = np.argmax(
+        prediction[0]
+    )
+
 
     confidence = float(
-        np.max(prediction)
+        np.max(prediction[0])
     ) * 100
 
 
     disease = class_names[result]
 
 
+    # Display result
+    st.divider()
+
     st.subheader("🦠 Result")
 
-    st.success(disease)
+    st.success(
+        disease
+    )
 
 
     st.subheader("📊 Confidence")
+
+    st.progress(
+        confidence / 100
+    )
 
     st.write(
         f"{confidence:.2f}%"
@@ -122,3 +187,10 @@ if uploaded_file:
     st.info(
         solutions[disease]
     )
+
+
+st.divider()
+
+st.caption(
+    "AI Tomato Disease Detection System | Science Expo Project"
+)
