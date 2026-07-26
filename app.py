@@ -1,17 +1,23 @@
-import streamlit as st
-import numpy as np
-from PIL import Image
-
-
-# Load TFLite model
-import tensorflow as tf
-
-interpreter = tf.lite.Interpreter(
+[4:53 PM, 7/26/2026] xuan: interpreter = Interpreter(
     model_path="model/tomato_model.tflite"
 )
 
 interpreter.allocate_tensors()
 
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
+[4:55 PM, 7/26/2026] xuan: import streamlit as st
+import numpy as np
+from PIL import Image
+from ai_edge_litert.interpreter import Interpreter
+
+
+# Load TFLite model
+interpreter = Interpreter(
+    model_path="model/tomato_model.tflite"
+)
+
+interpreter.allocate_tensors()
 
 input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
@@ -29,17 +35,18 @@ solutions = {
     "Tomato_Early_blight":
     "🍂 Remove infected leaves.\n\nImprove air circulation.\n\nApply suitable treatment.",
 
+    "Tomato_healthy":
+    "🌱 Plant looks healthy!\n\nContinue good care.",
+
     "Tomato_Late_blight":
     "⚠️ Remove infected plants.\n\nAvoid overwatering.\n\nApply treatment.",
 
     "Tomato_Leaf_Mold":
-    "🌫️ Reduce humidity.\n\nImprove ventilation.\n\nRemove infected leaves.",
-
-    "Tomato_healthy":
-    "🌱 Plant looks healthy!\n\nContinue good care."
+    "🌫️ Reduce humidity.\n\nImprove ventilation.\n\nRemove infected leaves."
 }
 
 
+# Page design
 st.set_page_config(
     page_title="Tomato Disease AI",
     page_icon="🌱"
@@ -49,12 +56,12 @@ st.set_page_config(
 st.title("🌱 AI Tomato Disease Detector")
 
 st.write(
-    "Upload a tomato leaf image and let AI detect the disease."
+    "Upload a tomato leaf image and AI will detect possible diseases."
 )
 
 
 uploaded_file = st.file_uploader(
-    "📷 Upload Tomato Leaf Image",
+    "📷 Upload leaf image",
     type=["jpg", "jpeg", "png"]
 )
 
@@ -65,7 +72,7 @@ if uploaded_file:
 
     st.image(
         image,
-        caption="Uploaded Tomato Leaf",
+        caption="Uploaded Image",
         width=350
     )
 
@@ -79,11 +86,10 @@ if uploaded_file:
         axis=0
     )
 
-    img_array = img_array.astype(
-        np.float32
-    ) / 255.0
+    img_array = img_array.astype(np.float32) / 255.0
 
 
+    # Prediction
     interpreter.set_tensor(
         input_details[0]["index"],
         img_array
@@ -97,14 +103,14 @@ if uploaded_file:
     )
 
 
-    index = np.argmax(prediction)
+    result = np.argmax(prediction)
 
     confidence = float(
         np.max(prediction)
     ) * 100
 
 
-    disease = class_names[index]
+    disease = class_names[result]
 
 
     st.subheader("🦠 Result")
@@ -112,8 +118,9 @@ if uploaded_file:
     st.success(disease)
 
 
-    st.metric(
-        "📊 Confidence",
+    st.subheader("📊 Confidence")
+
+    st.write(
         f"{confidence:.2f}%"
     )
 
