@@ -1,4 +1,4 @@
-[4:53 PM, 7/26/2026] xuan: interpreter = Interpreter(
+interpreter = Interpreter(
     model_path="model/tomato_model.tflite"
 )
 
