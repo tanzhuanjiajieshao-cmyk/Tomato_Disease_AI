@@ -11,19 +11,20 @@ st.set_page_config(
 )
 
 
-# Load AI model
+# Load SavedModel
 @st.cache_resource
 def load_model():
-    model = tf.keras.models.load_model(
-    "saved_model"
-)
+    model = tf.keras.layers.TFSMLayer(
+        "saved_model",
+        call_endpoint="serving_default"
+    )
     return model
 
 
 model = load_model()
 
 
-# Disease classes
+# Class names
 class_names = [
     "Tomato_Early_blight",
     "Tomato_healthy",
@@ -48,7 +49,7 @@ solutions = {
 }
 
 
-# Website title
+# Title
 st.title("🌱 AI Tomato Disease Detector")
 
 st.write(
@@ -56,7 +57,7 @@ st.write(
 )
 
 
-# Upload image
+# Upload
 uploaded_file = st.file_uploader(
     "📷 Upload tomato leaf image",
     type=["jpg", "jpeg", "png"]
@@ -74,7 +75,7 @@ if uploaded_file:
     )
 
 
-    # Image preprocessing
+    # Prepare image
     img = image.convert("RGB")
 
     img = img.resize(
@@ -93,10 +94,10 @@ if uploaded_file:
     ) / 255.0
 
 
-    # AI prediction
-    prediction = model.predict(
-        img_array
-    )
+    # Prediction
+    output = model(img_array)
+
+    prediction = list(output.values())[0].numpy()
 
 
     result = np.argmax(
@@ -111,7 +112,7 @@ if uploaded_file:
     disease = class_names[result]
 
 
-    # Display result
+    # Result
     st.subheader("🦠 Result")
 
     st.success(
