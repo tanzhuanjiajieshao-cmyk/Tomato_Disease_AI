@@ -15,7 +15,8 @@ st.set_page_config(
 @st.cache_resource
 def load_model():
     return tf.keras.models.load_model(
-        "model/tomato_model.keras"
+        "model/tomato_model.keras",
+        compile=False
     )
 
 
@@ -31,7 +32,7 @@ class_names = [
 ]
 
 
-# Solutions
+# Disease solutions
 solutions = {
     "Tomato_Early_blight":
     "🍂 Remove infected leaves.\n\nImprove air circulation.\n\nApply suitable treatment.",
@@ -88,7 +89,7 @@ if uploaded_file:
     )
 
     img_array = img_array.astype(
-        "float32"
+        np.float32
     ) / 255.0
 
 
@@ -102,15 +103,15 @@ if uploaded_file:
         prediction
     )
 
-    confidence = np.max(
-        prediction
+    confidence = float(
+        np.max(prediction)
     ) * 100
 
 
     disease = class_names[result]
 
 
-    # Result
+    # Display result
     st.subheader("🦠 Result")
 
     st.success(
