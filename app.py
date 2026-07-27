@@ -1,31 +1,28 @@
 import streamlit as st
-import os
-
-st.write(
-    os.listdir("model")
-)
+import tensorflow as tf
+import numpy as np
+from PIL import Image
 
 
-# Page setting
+# Page setup
 st.set_page_config(
     page_title="Tomato Disease AI",
     page_icon="🌱"
 )
 
 
-# Load TFLite model
-interpreter = Interpreter(
-    model_path="model/tomato_model.tflite"
-)
-
-interpreter.allocate_tensors()
-
-
-input_details = interpreter.get_input_details()
-output_details = interpreter.get_output_details()
+# Load model
+@st.cache_resource
+def load_model():
+    return tf.keras.models.load_model(
+        "model/tomato_model.keras"
+    )
 
 
-# Classes
+model = load_model()
+
+
+# Class names
 class_names = [
     "Tomato_Early_blight",
     "Tomato_healthy",
@@ -50,7 +47,7 @@ solutions = {
 }
 
 
-# Website
+# Title
 st.title("🌱 AI Tomato Disease Detector")
 
 st.write(
@@ -58,8 +55,9 @@ st.write(
 )
 
 
+# Upload image
 uploaded_file = st.file_uploader(
-    "📷 Upload leaf image",
+    "📷 Upload tomato leaf image",
     type=["jpg", "jpeg", "png"]
 )
 
@@ -75,10 +73,12 @@ if uploaded_file:
     )
 
 
-    # Preprocess image
+    # Prepare image
     img = image.convert("RGB")
 
-    img = img.resize((224, 224))
+    img = img.resize(
+        (224, 224)
+    )
 
     img_array = np.array(img)
 
@@ -87,36 +87,35 @@ if uploaded_file:
         axis=0
     )
 
-    img_array = img_array.astype(np.float32) / 255.0
+    img_array = img_array.astype(
+        "float32"
+    ) / 255.0
 
 
     # Prediction
-    interpreter.set_tensor(
-        input_details[0]["index"],
+    prediction = model.predict(
         img_array
     )
 
-    interpreter.invoke()
 
-
-    output = interpreter.get_tensor(
-        output_details[0]["index"]
+    result = np.argmax(
+        prediction
     )
 
-
-    result = np.argmax(output)
-
-    confidence = float(
-        np.max(output)
+    confidence = np.max(
+        prediction
     ) * 100
 
 
     disease = class_names[result]
 
 
+    # Result
     st.subheader("🦠 Result")
 
-    st.success(disease)
+    st.success(
+        disease
+    )
 
 
     st.subheader("📊 Confidence")
