@@ -15,8 +15,7 @@ st.set_page_config(
 @st.cache_resource
 def load_model():
     model = tf.keras.models.load_model(
-    "tomato_model.h5",
-    compile=False
+    "saved_model"
 )
     return model
 
