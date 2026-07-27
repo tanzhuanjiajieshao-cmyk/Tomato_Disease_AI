@@ -1,7 +1,9 @@
 import streamlit as st
-import numpy as np
-from PIL import Image
-from ai_edge_litert.interpreter import Interpreter
+import os
+
+st.write(
+    os.listdir("model")
+)
 
 
 # Page setting
