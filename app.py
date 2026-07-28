@@ -20,7 +20,7 @@ st.set_page_config(
 #   )
 #    return model
     
-model = load_model()
+#model = load_model()
 
 @st.cache_resource
 def load_model():
