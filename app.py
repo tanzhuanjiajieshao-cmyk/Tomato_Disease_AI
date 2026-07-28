@@ -105,6 +105,7 @@ if uploaded_file:
 
     # Prediction
     output = model(img_array)
+    print(output)
 
     prediction = list(output.values())[0].numpy()
 
