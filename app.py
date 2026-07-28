@@ -19,10 +19,7 @@ def load_model():
         call_endpoint="serving_default"
     )
     return model
-
-
-
-
+    
 model = load_model()
 
 
