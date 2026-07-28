@@ -12,14 +12,24 @@ st.set_page_config(
 
 
 # Load SavedModel
+#@st.cache_resource
+#def load_model():
+#    model = tf.keras.layers.TFSMLayer(
+#        "model/tomato_model.keras",
+#        call_endpoint="serving_default"
+#   )
+#    return model
+    
+model = load_model()
+
 @st.cache_resource
 def load_model():
-    model = tf.keras.layers.TFSMLayer(
+    model = tf.keras.models.load_model(
         "model/tomato_model.keras",
-        call_endpoint="serving_default"
+        compile=False
     )
     return model
-    
+
 model = load_model()
 
 
