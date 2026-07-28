@@ -107,7 +107,8 @@ if uploaded_file:
     output = model(img_array)
     print(output)
 
-    prediction = list(output.values())[0].numpy()
+    #prediction = list(output.values())[0].numpy()
+    prediction = model.predict(img_array, verbose=0)
 
 
     result = np.argmax(
