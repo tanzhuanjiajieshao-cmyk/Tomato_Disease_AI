@@ -15,7 +15,7 @@ st.set_page_config(
 @st.cache_resource
 def load_model():
     model = tf.keras.layers.TFSMLayer(
-        "model",
+        "model/tomato_model.keras",
         call_endpoint="serving_default"
     )
     return model
